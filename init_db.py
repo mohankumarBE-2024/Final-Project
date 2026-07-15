@@ -2,13 +2,11 @@ import os
 import psycopg2
 from dotenv import load_dotenv
 
-# Load credentials from your .env file
 load_dotenv()
 
 def create_tables():
     print("Connecting to AWS RDS...")
     try:
-        # Establish the connection
         conn = psycopg2.connect(
             host=os.getenv("DB_HOST"),
             database=os.getenv("DB_NAME"),
@@ -18,7 +16,6 @@ def create_tables():
         )
         cursor = conn.cursor()
 
-        # Your SQL commands
         create_schema_sql = """
         -- Table 1: Metadata + Anomaly Status
         CREATE TABLE detection_logs (
@@ -40,7 +37,6 @@ def create_tables():
         print("Executing SQL script...")
         cursor.execute(create_schema_sql)
         
-        # Commit the changes to the database
         conn.commit()
         print("Success! Tables created successfully.")
 
