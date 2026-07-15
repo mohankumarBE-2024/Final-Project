@@ -3,21 +3,19 @@
 ## Overview
 This project focuses on monitoring **Personal Protective Equipment (PPE)** compliance in manufacturing environments using Computer Vision and Artificial Intelligence. The system detects whether workers are wearing the required safety equipment such as helmets, gloves, safety vests, and masks while identifying safety violations in real time.
 
-A **YOLOv8** object detection model is used to detect both PPE compliance and non-compliance from uploaded images. The detected violations are securely stored in **AWS RDS**, while **AWS S3** is used to store uploaded media files. An interactive **Streamlit** web application provides face-recognition-based login, real-time detection, violation monitoring, automated reporting, and an AI-powered chatbot for querying workplace safety data using natural language.
+A **YOLOv8** object detection model is used to detect both PPE compliance and non-compliance from uploaded images. The detected violations are securely stored in **AWS RDS**. An interactive **Streamlit** web application provides PIN-based login, real-time detection, violation monitoring, automated reporting, and an AI-powered chatbot for querying workplace safety data using natural language.
 
 ## Technologies Used
 - **Python**: Core programming language for application development.
 - **YOLOv8**: Real-time PPE object detection.
 - **OpenCV**: Image and video processing.
-- **Face Recognition**: Secure user authentication.
+- **PIN**: Secure user authentication.
 - **Streamlit**: Interactive web application development.
 - **AWS RDS (MySQL)**: Stores PPE violation logs and metadata.
-- **AWS S3**: Secure storage for uploaded images and videos.
 - **SQLAlchemy & PyMySQL**: Database connectivity and operations.
 - **Pandas & NumPy**: Data processing and analysis.
 - **LangChain**: AI-powered chatbot with SQL Agent.
 - **SMTP**: Automated email notifications.
-- **Matplotlib**: Visualization of detection results.
 
 ## Steps Involved
 
@@ -46,10 +44,9 @@ A **YOLOv8** object detection model is used to detect both PPE compliance and no
 
 ### 5. Streamlit Application Development
 - Built a secure Streamlit web application.
-- Implemented face-recognition-based login authentication.
+- Implemented PIN-based login authentication.
 - Allowed users to upload images for PPE detection.
 - Displayed detection results with bounding boxes and confidence scores.
-- Stored uploaded files in AWS S3.
 - Logged detected violations into AWS RDS.
 - Generated downloadable CSV reports.
 - Sent automated email alerts for detected violations.
