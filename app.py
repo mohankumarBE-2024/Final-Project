@@ -12,10 +12,10 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-# from langchain_community.utilities import SQLDatabase
-# from langchain_ollama import ChatOllama
-# from langgraph.prebuilt import create_react_agent
-# from langchain_community.agent_toolkits import SQLDatabaseToolkit
+from langchain_community.utilities import SQLDatabase
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langgraph.prebuilt import create_react_agent
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
 
 
 # Load environment variables securely
@@ -140,31 +140,35 @@ def send_csv_report_email():
         print(f"Error generating or sending anomaly report: {e}")
         return "ERROR"
 
-# def query_database_with_ai(user_question):
-#     db_uri = os.getenv("DATABASE_URL")
-#     db = SQLDatabase.from_uri(db_uri, include_tables=["detection_logs", "violation_details"])
+def query_database_with_ai(user_question):
+    db_uri = os.getenv("DATABASE_URL")
+    db = SQLDatabase.from_uri(db_uri, include_tables=["detection_logs", "violation_details"])
 
-#     llm = ChatOllama(model="qwen2.5", temperature=0)
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        google_api_key=os.getenv("GOOGLE_API_KEY"),
+        temperature=0
+    )
 
-#     toolkit = SQLDatabaseToolkit(db=db, llm=llm)
-#     tools = toolkit.get_tools()
+    toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+    tools = toolkit.get_tools()
 
-#     system_message = (
-#         "You are an agent designed to interact with a SQL database. "
-#         "Given a question, create a syntactically correct SQL query, "
-#         "look at the results, and return the answer. "
-#         "Always look at the tables in the database first using the list tables tool "
-#         "before writing any query. Only use tables and columns that actually exist."
-#     )
+    system_message = (
+        "You are an agent designed to interact with a SQL database. "
+        "Given a question, create a syntactically correct SQL query, "
+        "look at the results, and return the answer. "
+        "Always look at the tables in the database first using the list tables tool "
+        "before writing any query. Only use tables and columns that actually exist."
+    )
 
-#     agent_executor = create_react_agent(llm, tools, prompt=system_message)
+    agent_executor = create_react_agent(llm, tools, prompt=system_message)
 
-#     try:
-#         response = agent_executor.invoke({"messages": [("human", user_question)]})
-#         final_message = response["messages"][-1]
-#         return final_message.content
-#     except Exception as e:
-#         return f"I encountered an error while analyzing the data: {e}"
+    try:
+        response = agent_executor.invoke({"messages": [("human", user_question)]})
+        final_message = response["messages"][-1]
+        return final_message.content
+    except Exception as e:
+        return f"I encountered an error while analyzing the data: {e}"
 
 # --- STREAMLIT UI ---
 model = YOLO('intelliguard_best_v1.pt')
@@ -210,37 +214,37 @@ if uploaded_file is not None:
     
 
 # --- GENERATIVE AI DASHBOARD ---
-# st.markdown("---")
-# st.header("📊 AI Compliance Auditor")
-# st.write("Ask questions about workplace safety logs in plain English.")
+st.markdown("---")
+st.header("📊 AI Compliance Auditor")
+st.write("Ask questions about workplace safety logs in plain English.")
 
-# # Initialize chat history in Streamlit session state
-# if "messages" not in st.session_state:
-#     st.session_state.messages = []
+# Initialize chat history in Streamlit session state
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# # Display previous chat messages
-# for message in st.session_state.messages:
-#     with st.chat_message(message["role"]):
-#         st.markdown(message["content"])
+# Display previous chat messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-# # Handle new user input
-# if prompt := st.chat_input("E.g., How many missing helmet violations were logged today?"):
+# Handle new user input
+if prompt := st.chat_input("E.g., How many missing helmet violations were logged today?"):
     
-#     # 1. Display user message
-#     with st.chat_message("user"):
-#         st.markdown(prompt)
+    # 1. Display user message
+    with st.chat_message("user"):
+        st.markdown(prompt)
     
-#     # 2. Add to history
-#     st.session_state.messages.append({"role": "user", "content": prompt})
+    # 2. Add to history
+    st.session_state.messages.append({"role": "user", "content": prompt})
     
-#     # 3. Generate AI response
-#     with st.chat_message("assistant"):
-#         with st.spinner("Analyzing database..."):
-#             ai_response = query_database_with_ai(prompt)
-#             st.markdown(ai_response)
+    # 3. Generate AI response
+    with st.chat_message("assistant"):
+        with st.spinner("Analyzing database..."):
+            ai_response = query_database_with_ai(prompt)
+            st.markdown(ai_response)
             
-#     # 4. Add AI response to history
-#     st.session_state.messages.append({"role": "assistant", "content": ai_response})
+    # 4. Add AI response to history
+    st.session_state.messages.append({"role": "assistant", "content": ai_response})
 
 # --- ADMIN SIDEBAR ---
 with st.sidebar:
