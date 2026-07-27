@@ -140,15 +140,22 @@ def send_csv_report_email():
         print(f"Error generating or sending anomaly report: {e}")
         return "ERROR"
 
+def extract_text(content):
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict) and block.get("type") == "text":
+                parts.append(block.get("text", ""))
+        return "\n".join(parts) if parts else str(content)
+    return str(content)
+
 def query_database_with_ai(user_question):
     db_uri = os.getenv("DATABASE_URL")
     db = SQLDatabase.from_uri(db_uri, include_tables=["detection_logs", "violation_details"])
 
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        google_api_key=os.getenv("GOOGLE_API_KEY"),
-        temperature=0
-    )
+    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite",google_api_key=os.getenv("GOOGLE_API_KEY"),temperature=0)
 
     toolkit = SQLDatabaseToolkit(db=db, llm=llm)
     tools = toolkit.get_tools()
@@ -166,8 +173,10 @@ def query_database_with_ai(user_question):
     try:
         response = agent_executor.invoke({"messages": [("human", user_question)]})
         final_message = response["messages"][-1]
-        return final_message.content
+        return extract_text(final_message.content)
     except Exception as e:
+        if "RESOURCE_EXHAUSTED" in str(e) or "429" in str(e):
+            return "I've hit my daily question limit for now — please try again later, or ask an admin to check the usage quota."
         return f"I encountered an error while analyzing the data: {e}"
 
 # --- STREAMLIT UI ---
