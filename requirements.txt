@@ -6,8 +6,5 @@ opencv-python-headless==4.12.0.88
 Pillow==12.0.0
 pandas==2.3.3
 SQLAlchemy==2.0.51
-langchain-community==0.4.2
-langchain-ollama==1.1.0
-langgraph-prebuilt==1.1.0
 torch==2.13.0
 torchvision==0.28.0
