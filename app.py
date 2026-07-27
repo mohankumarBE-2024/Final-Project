@@ -12,10 +12,10 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-from langchain_community.utilities import SQLDatabase
-from langchain_ollama import ChatOllama
-from langgraph.prebuilt import create_react_agent
-from langchain_community.agent_toolkits import SQLDatabaseToolkit
+# from langchain_community.utilities import SQLDatabase
+# from langchain_ollama import ChatOllama
+# from langgraph.prebuilt import create_react_agent
+# from langchain_community.agent_toolkits import SQLDatabaseToolkit
 
 
 # Load environment variables securely
