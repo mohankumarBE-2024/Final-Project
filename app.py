@@ -292,16 +292,13 @@ with tab_chat:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("E.g., How many missing helmet violations were logged today?"):
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
-
-        with st.chat_message("assistant"):
-            with st.spinner("Analyzing database..."):
-                ai_response = query_database_with_ai(prompt)
-                st.markdown(ai_response)
-        st.session_state.messages.append({"role": "assistant", "content": ai_response})
+prompt = st.chat_input("E.g., How many missing helmet violations were logged today?")
+if prompt:
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.spinner("Analyzing database..."):
+        ai_response = query_database_with_ai(prompt)
+    st.session_state.messages.append({"role": "assistant", "content": ai_response})
+    st.rerun()
 
 # --- ADMIN SIDEBAR ---
 with st.sidebar:
