@@ -233,10 +233,17 @@ st.markdown(
 
 model = YOLO('intelliguard_best_v1.pt')
 
-tab_detect, tab_chat = st.tabs(["🔍 PPE Detection", "📊 AI Compliance Auditor"])
+# --- NAVIGATION (radio styled as pill tabs, so we can check which view is active) ---
+view = st.radio(
+    "Navigation",
+    ["🔍 PPE Detection", "📊 AI Compliance Auditor"],
+    horizontal=True,
+    label_visibility="collapsed"
+)
+st.divider()
 
-# ================= DETECTION TAB =================
-with tab_detect:
+# ================= DETECTION VIEW =================
+if view == "🔍 PPE Detection":
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
@@ -281,8 +288,8 @@ with tab_detect:
             except Exception as e:
                 st.error(f"Database error: {e}")
 
-# ================= CHATBOT TAB =================
-with tab_chat:
+# ================= CHATBOT VIEW =================
+elif view == "📊 AI Compliance Auditor":
     st.write("Ask questions about workplace safety logs in plain English.")
 
     if "messages" not in st.session_state:
@@ -292,16 +299,15 @@ with tab_chat:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("E.g., How many missing helmet violations were logged today?"):
-        with st.chat_message("user"):
-            st.markdown(prompt)
+# Chat input only appears — and only docks to the bottom — when the Auditor view is active
+if view == "📊 AI Compliance Auditor":
+    prompt = st.chat_input("E.g., How many missing helmet violations were logged today?")
+    if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
-
-        with st.chat_message("assistant"):
-            with st.spinner("Analyzing database..."):
-                ai_response = query_database_with_ai(prompt)
-                st.markdown(ai_response)
+        with st.spinner("Analyzing database..."):
+            ai_response = query_database_with_ai(prompt)
         st.session_state.messages.append({"role": "assistant", "content": ai_response})
+        st.rerun()
 
 # --- ADMIN SIDEBAR ---
 with st.sidebar:
