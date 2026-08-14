@@ -17,7 +17,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 
-# --- PAGE CONFIG: ----
+# --- PAGE CONFIG: must be the very first Streamlit command ---
 st.set_page_config(
     page_title="Intelliguard: AI-Powered PPE Compliance",
     page_icon="🦺",
@@ -233,16 +233,10 @@ st.markdown(
 
 model = YOLO('intelliguard_best_v1.pt')
 
-view = st.radio(
-    "Navigation",
-    ["🔍 PPE Detection", "📊 AI Compliance Auditor"],
-    horizontal=True,
-    label_visibility="collapsed"
-)
-st.divider()
+tab_detect, tab_chat = st.tabs(["🔍 PPE Detection", "📊 AI Compliance Auditor"])
 
 # ================= DETECTION TAB =================
-if view == "🔍 PPE Detection":
+with tab_detect:
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
@@ -288,7 +282,7 @@ if view == "🔍 PPE Detection":
                 st.error(f"Database error: {e}")
 
 # ================= CHATBOT TAB =================
-elif view == "📊 AI Compliance Auditor":
+with tab_chat:
     st.write("Ask questions about workplace safety logs in plain English.")
 
     if "messages" not in st.session_state:
@@ -298,14 +292,16 @@ elif view == "📊 AI Compliance Auditor":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-if view == "📊 AI Compliance Auditor":
-    prompt = st.chat_input("E.g., How many missing helmet violations were logged today?")
-    if prompt:
+    if prompt := st.chat_input("E.g., How many missing helmet violations were logged today?"):
+        with st.chat_message("user"):
+            st.markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.spinner("Analyzing database..."):
-            ai_response = query_database_with_ai(prompt)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Analyzing database..."):
+                ai_response = query_database_with_ai(prompt)
+                st.markdown(ai_response)
         st.session_state.messages.append({"role": "assistant", "content": ai_response})
-        st.rerun()
 
 # --- ADMIN SIDEBAR ---
 with st.sidebar:
